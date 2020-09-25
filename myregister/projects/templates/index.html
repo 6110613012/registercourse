@@ -1,0 +1,92 @@
+{% extends "layout.html" %}
+{% block style %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<style>
+    .content{
+        margin-left: 50px;
+    }
+    .enroll{
+        margin-top: 50px;
+    }
+</style>
+
+{% endblock %}
+{% block body %}
+
+
+    <div class="w3-sidebar w3-bar-block w3-collapse w3-card w3-animate-left" style="width:200px;" id="mySidebar">
+     <button class="w3-bar-item w3-button w3-large w3-hide-large" onclick="w3_close()">Close &times;</button>
+     <a href="{% url 'index' %}" class="w3-bar-item w3-button">โปรไฟล์</a>
+     <a href="{% url 'logoutview' %}" class="w3-bar-item w3-button">ออกจากระบบ</a>
+     </div>
+
+
+
+
+     <div class="w3-main" style="margin-left:200px">
+<div class="w3-teal">
+  <button class="w3-button w3-teal w3-xlarge w3-hide-large" onclick="w3_open()">&#9776;</button>
+  <div class="w3-container">
+    <h1>Weclome, {{request.user.first_name}}</h1>
+  </div>
+</div>
+
+
+    <div class="content"><h2>รายวิชาที่ลงทะเบียน</h2>
+        <div class="cancel">
+        <ul>
+            {% for x in enroll_at %}
+                <li><b>Subject</b>: {{x.cID}}  {{x.cName}}  <b>Semester/Year</b>: {{x.term}}/{{x.year}} <b>enrollment/seat:</b> {{x.enroll.count}}/{{x.quota}} <b>Status</b>:
+                {% if x.enroll.count < x.quota and x.status == True %} Available
+                {% else %} Not avaible
+                {% endif %}</li>
+            {% empty %}
+                <li>ไม่มีรายวิชา</li>
+            {% endfor %}
+        </ul>
+
+        <form action="{% url 'cancel_course' %}" method="post">
+            {% csrf_token %}
+            <label for="course_name">กรุณาเลือกวิชาที่ต้องการยกเลิกลงทะเบียน</label><br>
+
+            <select name = "course_name">
+                    {% for course_name in enroll_at %}
+                    <option value="{{ course_name.cID }}">{{ course_name }}</option>
+                    {% endfor %}
+            </select>
+
+
+            <input type="submit" value="cancel enroll" onclick="cancel_course(request)">
+        </form>
+        </div>
+        <div class="enroll">
+        <h2>รายวิชาที่ไม่ได้ลงทะเบียน</h2>
+
+            <ul>
+                {% for x in not_enroll_at %}
+                    <li><b>Subject</b>:{{x.cID}}  {{x.cName}} <b>Semester/Year</b>: {{x.term}}/{{x.year}} <b>enrollment/seat</b> : {{x.enroll.count}}/{{x.quota}} <b>Status</b>:
+                    {% if x.enroll.count < x.quota and x.status == True %} Available
+                    {% else %} Not avaible
+                    {% endif %}</li>
+                {% empty %}
+                    <li>ไม่มีรายวิชา</li>
+                {% endfor %}
+            </ul>
+
+            <form action="{% url 'add_course' %}" method="post">
+                {% csrf_token %}
+                <label for="course_name">กรุณาเลือกวิชาที่ต้องการลงทะเบียน</label><br>
+
+                 <select name = "course_name">
+                    {% for course_name in not_enroll_at %}
+                    <option value="{{ course_name.cID }}">{{ course_name }}</option>
+                    {% endfor %}
+                 </select>
+
+                <input type="submit" value="enroll" onclick="add_course(request)">
+            </form><br>
+            </div>
+            </div>
+{% endblock %}
+
